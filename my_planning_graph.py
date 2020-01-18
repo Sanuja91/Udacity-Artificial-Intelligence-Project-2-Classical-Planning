@@ -5,6 +5,21 @@ from aimacode.utils import expr
 
 from layers import BaseActionLayer, BaseLiteralLayer, makeNoOp, make_node
 
+def checks_negations(literalA, literalB):
+    """Checks if one literal negates the other"""
+    # gets literals without the operations
+    noOp_literalA = literalA if literalA.op != '~' else ~literalA
+    noOp_literalB = literalB if literalB.op != '~' else ~literalB
+
+    # checks if the literals are the same once operations removed 
+    same_literal = noOp_literalA == noOp_literalB 
+    
+    # checks if literals have opposing operations
+    negation_symbol_present = literalA.op != literalB.op
+    
+    # if literals have opposing operations and the literals are the same
+    # once operations have been removed then they will negate each other
+    return negation_symbol_present == same_literal
 
 class ActionLayer(BaseActionLayer):
 
@@ -19,12 +34,19 @@ class ActionLayer(BaseActionLayer):
         --------
         layers.ActionNode
         """
-        # TODO: implement this function
-        print("ACTION A", actionA)
-        print("CHILDREN ACTION A", self.children[actionA])
+        # DONE: implement this function
+        
+        # get the effects of the actions
+        effectsA = self.children[actionA]
+        effectsB = self.children[actionB]
 
-        # print("ACTION B", actionB)
-        raise NotImplementedError
+        # cycle through the actions checking if one action negates another
+        for effectA in effectsA:
+            for effectB in effectsB:
+                if checks_negations(effectA, effectB):
+                    return True
+        return False
+
 
 
     def _interference(self, actionA, actionB):
@@ -76,20 +98,7 @@ class LiteralLayer(BaseLiteralLayer):
     def _negation(self, literalA, literalB):
         """ Return True if two literals are negations of each other """
         # DONE: implement this function
-        
-        # gets literals without the operations
-        noOp_literalA = literalA if literalA.op != '~' else ~literalA
-        noOp_literalB = literalB if literalB.op != '~' else ~literalB
-
-        # checks if the literals are the same once operations removed 
-        same_literal = noOp_literalA == noOp_literalB 
-        
-        # checks if literals have opposing operations
-        negation_symbol_present = literalA.op != literalB.op
-        
-        # if literals have opposing operations and the literals are the same
-        # once operations have been removed then they will negate each other
-        return negation_symbol_present == same_literal
+        return checks_negations(literalA, literalB)
 
 
 class PlanningGraph:
