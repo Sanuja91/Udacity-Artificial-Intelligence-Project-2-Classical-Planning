@@ -73,9 +73,21 @@ class LiteralLayer(BaseLiteralLayer):
 
     def _negation(self, literalA, literalB):
         """ Return True if two literals are negations of each other """
-        # TODO: implement this function
-        print("LITERAL | A", literalA.op, "| B", literalB.op, "| RETURN", literalA == ~literalB)
-        return literalA == ~literalB
+        # DONE: implement this function
+        
+        # gets literals without the operations
+        noOp_literalA = literalA if literalA.op != '~' else ~literalA
+        noOp_literalB = literalB if literalB.op != '~' else ~literalB
+
+        # checks if the literals are the same once operations removed 
+        same_literal = noOp_literalA == noOp_literalB 
+        
+        # checks if literals have opposing operations
+        negation_symbol_present = literalA.op != literalB.op
+        
+        # if literals have opposing operations and the literals are the same
+        # once operations have been removed then they will negate each other
+        return negation_symbol_present == same_literal
 
 
 class PlanningGraph:
