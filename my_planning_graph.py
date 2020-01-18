@@ -60,8 +60,28 @@ class ActionLayer(BaseActionLayer):
         --------
         layers.ActionNode
         """
-        # TODO: implement this function
-        raise NotImplementedError
+
+        # get the preconditions of the actions
+        preconditionsA = self.parents[actionA]
+        preconditionsB = self.parents[actionB]
+        
+        # get the effects of the actions
+        effectsA = self.children[actionA]
+        effectsB = self.children[actionB]
+
+        # cycle through the effects of action A checking if it negations any preconditions of action B
+        for effectA in effectsA:
+            for preconditionB in preconditionsB:
+                if checks_negations(effectA, preconditionB):
+                    return True
+        
+        # cycle through the effects of action B checking if it negations any preconditions of action A
+        for effectB in effectsB:
+            for preconditionA in preconditionsA:
+                if checks_negations(effectB, preconditionA):
+                    return True
+        
+        return False
 
     def _competing_needs(self, actionA, actionB):
         """ Return True if any preconditions of the two actions are pairwise mutex in the parent layer
