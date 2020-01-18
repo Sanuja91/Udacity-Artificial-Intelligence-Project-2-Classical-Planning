@@ -21,7 +21,9 @@ class ActionLayer(BaseActionLayer):
         """
         # TODO: implement this function
         print("ACTION A", actionA)
-        print("ACTION B", actionB)
+        print("CHILDREN ACTION A", self.children[actionA])
+
+        # print("ACTION B", actionB)
         raise NotImplementedError
 
 
