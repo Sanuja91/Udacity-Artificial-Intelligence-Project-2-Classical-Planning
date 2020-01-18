@@ -48,7 +48,6 @@ class ActionLayer(BaseActionLayer):
         return False
 
 
-
     def _interference(self, actionA, actionB):
         """ Return True if the effects of either action negate the preconditions of the other 
 
@@ -123,8 +122,18 @@ class LiteralLayer(BaseLiteralLayer):
         --------
         layers.BaseLayer.parent_layer
         """
-        # TODO: implement this function
-        raise NotImplementedError
+        # DONE: implement this function
+
+        # get the preconditions of the literals
+        preconditionsA = self.parents[literalA]
+        preconditionsB = self.parents[literalB]
+
+        for preconditionA in preconditionsA:
+            for preconditionB in preconditionsB:
+                if self.parent_layer.is_mutex(preconditionA, preconditionB):
+                    return True
+
+        return False
 
     def _negation(self, literalA, literalB):
         """ Return True if two literals are negations of each other """
