@@ -6,7 +6,7 @@ from aimacode.utils import expr
 from layers import BaseActionLayer, BaseLiteralLayer, makeNoOp, make_node
 
 def checks_negations(literalA, literalB):
-    """Checks if one literal negates the other"""
+    """ Checks if one literal negates the other"""
     # gets literals without the operations
     noOp_literalA = literalA if literalA.op != '~' else ~literalA
     noOp_literalB = literalB if literalB.op != '~' else ~literalB
@@ -95,8 +95,19 @@ class ActionLayer(BaseActionLayer):
         layers.ActionNode
         layers.BaseLayer.parent_layer
         """
-        # TODO: implement this function
-        raise NotImplementedError
+
+        # DONE: implement this function
+
+        # get the preconditions of the actions
+        preconditionsA = self.parents[actionA]
+        preconditionsB = self.parents[actionB]
+
+        for preconditionA in preconditionsA:
+            for preconditionB in preconditionsB:
+                if self.parent_layer.is_mutex(preconditionA, preconditionB):
+                    return True
+
+        return False
 
 
 class LiteralLayer(BaseLiteralLayer):
