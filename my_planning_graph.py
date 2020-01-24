@@ -7,19 +7,7 @@ from layers import BaseActionLayer, BaseLiteralLayer, makeNoOp, make_node
 
 def checks_negations(literalA, literalB):
     """ Checks if one literal negates the other"""
-    # gets literals without the operations
-    noOp_literalA = literalA if literalA.op != '~' else ~literalA
-    noOp_literalB = literalB if literalB.op != '~' else ~literalB
-
-    # checks if the literals are the same once operations removed 
-    same_literal = noOp_literalA == noOp_literalB 
-    
-    # checks if literals have opposing operations
-    negation_symbol_present = literalA.op != literalB.op
-    
-    # if literals have opposing operations and the literals are the same
-    # once operations have been removed then they will negate each other
-    return negation_symbol_present == same_literal
+    return literalA == ~literalB 
 
 class ActionLayer(BaseActionLayer):
 
@@ -43,8 +31,7 @@ class ActionLayer(BaseActionLayer):
         # cycle through the actions checking if one action negates another
         for effectA in effectsA:
             for effectB in effectsB:
-                if checks_negations(effectA, effectB):
-                    return True
+                if checks_negations(effectA, effectB): return True
         return False
 
 
@@ -71,15 +58,12 @@ class ActionLayer(BaseActionLayer):
         # cycle through the effects of action A checking if it negations any preconditions of action B
         for effectA in effectsA:
             for preconditionB in preconditionsB:
-                if checks_negations(effectA, preconditionB):
-                    return True
+                if checks_negations(effectA, preconditionB): return True
         
         # cycle through the effects of action B checking if it negations any preconditions of action A
         for effectB in effectsB:
             for preconditionA in preconditionsA:
-                if checks_negations(effectB, preconditionA):
-                    return True
-        
+                if checks_negations(effectB, preconditionA): return True
         return False
 
     def _competing_needs(self, actionA, actionB):
@@ -103,9 +87,8 @@ class ActionLayer(BaseActionLayer):
 
         for preconditionA in preconditionsA:
             for preconditionB in preconditionsB:
-                if self.parent_layer.is_mutex(preconditionA, preconditionB):
-                    return True
-
+                if self.parent_layer.is_mutex(preconditionA, preconditionB): return True
+                if self.parent_layer.is_mutex(preconditionB, preconditionA): return True
         return False
 
 
@@ -125,15 +108,18 @@ class LiteralLayer(BaseLiteralLayer):
         # DONE: implement this function
 
         # get the preconditions of the literals
-        preconditionsA = self.parents[literalA]
-        preconditionsB = self.parents[literalB]
+        actionsA = self.parents[literalA]
+        actionsB = self.parents[literalB]
 
-        for preconditionA in preconditionsA:
-            for preconditionB in preconditionsB:
-                if self.parent_layer.is_mutex(preconditionA, preconditionB):
-                    return True
-
+        for actionA in actionsA:
+            for actionB in actionsB:
+                if self.parent_layer.is_mutex(actionA, actionB): return True
+                if self.parent_layer.is_mutex(actionB, actionA): return True
         return False
+
+        # return all(self.parent_layer.is_mutex(actionA,actionB) for actionA in self.parents[literalA] for actionB in self.parents[literalB]) \
+            # and all(self.parent_layer.is_mutex(actionB, actionA) for actionA in self.parents[literalA] for actionB in self.parents[literalB])
+
 
     def _negation(self, literalA, literalB):
         """ Return True if two literals are negations of each other """
@@ -171,7 +157,6 @@ class PlanningGraph:
         # initialize the planning graph by finding the literals that are in the
         # first layer and finding the actions they they should be connected to
         literals = [s if f else ~s for f, s in zip(state, problem.state_map)]
-        print(no_ops)
         layer = LiteralLayer(literals, ActionLayer(), self._ignore_mutexes)
         layer.update_mutexes()
         self.literal_layers = [layer]
@@ -233,6 +218,9 @@ class PlanningGraph:
         WARNING: you should expect long runtimes using this heuristic with A*
         """
         # TODO: implement maxlevel heuristic
+        self.fill(maxlevels = 1)
+        self._graph()
+        print("\n\n", )
         raise NotImplementedError
 
     def h_setlevel(self):
