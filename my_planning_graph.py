@@ -47,11 +47,11 @@ class ActionLayer(BaseActionLayer):
         layers.ActionNode
         """
 
-        # get the preconditions of the actions
+        # get the preconditions (literals) of the actions
         preconditionsA = self.parents[actionA]
         preconditionsB = self.parents[actionB]
         
-        # get the effects of the actions
+        # get the effects (literals) of the actions
         effectsA = self.children[actionA]
         effectsB = self.children[actionB]
 
@@ -81,7 +81,7 @@ class ActionLayer(BaseActionLayer):
 
         # DONE: implement this function
 
-        # get the preconditions of the actions
+        # get the preconditions (literals) of the actions
         preconditionsA = self.parents[actionA]
         preconditionsB = self.parents[actionB]
 
@@ -107,19 +107,17 @@ class LiteralLayer(BaseLiteralLayer):
         """
         # DONE: implement this function
 
-        # get the preconditions of the literals
+        # get the preconditions (literals) of the literals
         actionsA = self.parents[literalA]
         actionsB = self.parents[literalB]
 
+        mutex_results = []
         for actionA in actionsA:
             for actionB in actionsB:
-                if self.parent_layer.is_mutex(actionA, actionB): return True
-                if self.parent_layer.is_mutex(actionB, actionA): return True
+                mutex_results.append(self.parent_layer.is_mutex(actionA, actionB))
+                mutex_results.append(self.parent_layer.is_mutex(actionB, actionA))
+        if all(mutex_results): return True
         return False
-
-        # return all(self.parent_layer.is_mutex(actionA,actionB) for actionA in self.parents[literalA] for actionB in self.parents[literalB]) \
-            # and all(self.parent_layer.is_mutex(actionB, actionA) for actionA in self.parents[literalA] for actionB in self.parents[literalB])
-
 
     def _negation(self, literalA, literalB):
         """ Return True if two literals are negations of each other """
@@ -161,6 +159,12 @@ class PlanningGraph:
         layer.update_mutexes()
         self.literal_layers = [layer]
         self.action_layers = []
+
+    def h_goal_cost(self, goal):
+        """ Gets the cost to reach a goal """
+        for idx, literal_layer in enumerate(self.literal_layers):
+            if goal in literal_layer:
+                return idx
 
     def h_levelsum(self):
         """ Calculate the level sum heuristic for the planning graph
@@ -217,11 +221,13 @@ class PlanningGraph:
         -----
         WARNING: you should expect long runtimes using this heuristic with A*
         """
-        # TODO: implement maxlevel heuristic
-        self.fill(maxlevels = 1)
-        self._graph()
-        print("\n\n", )
-        raise NotImplementedError
+        # DONE: implement maxlevel heuristic
+        self.fill()
+        cost = []
+        for goal in self.goal:
+            cost.append(self.h_goal_cost(goal))
+        return max(cost)
+        
 
     def h_setlevel(self):
         """ Calculate the set level heuristic for the planning graph
