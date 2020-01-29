@@ -256,17 +256,14 @@ class PlanningGraph:
         -----
         WARNING: you should expect long runtimes using this heuristic on complex problems
         """
-        # TODO: implement setlevel heuristic
+        # DONE: implement setlevel heuristic
         self.fill()
-        costs = []
-        for goal in self.goal:
-            costs.append(self.h_goal_cost(goal))
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!", costs)
-
-        # for literal_layer in self.literal_layers:
-            # for goal in self.goal:
-                # if goal in literal_layer:
-        raise NotImplementedError
+        for idx, literal_layer in enumerate(self.literal_layers):
+            if not all(goal in literal_layer for goal in self.goal): continue
+            for goalA in self.goal:
+                for goalB in self.goal:
+                    if literal_layer.is_mutex(goalA, goalB): continue
+        return idx - 1
 
     ##############################################################################
     #                     DO NOT MODIFY CODE BELOW THIS LINE                     #
