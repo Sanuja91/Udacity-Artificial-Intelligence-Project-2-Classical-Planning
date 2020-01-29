@@ -192,7 +192,11 @@ class PlanningGraph:
         Russell-Norvig 10.3.1 (3rd Edition)
         """
         # TODO: implement this function
-        raise NotImplementedError
+        self.fill()
+        costs = []
+        for goal in self.goal:
+            costs.append(self.h_goal_cost(goal))
+        return sum(costs)
 
     def h_maxlevel(self):
         """ Calculate the max level heuristic for the planning graph
@@ -223,10 +227,10 @@ class PlanningGraph:
         """
         # DONE: implement maxlevel heuristic
         self.fill()
-        cost = []
+        costs = []
         for goal in self.goal:
-            cost.append(self.h_goal_cost(goal))
-        return max(cost)
+            costs.append(self.h_goal_cost(goal))
+        return max(costs)
         
 
     def h_setlevel(self):
