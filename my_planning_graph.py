@@ -165,6 +165,7 @@ class PlanningGraph:
         for idx, literal_layer in enumerate(self.literal_layers):
             if goal in literal_layer:
                 return idx
+        return -1
 
     def h_levelsum(self):
         """ Calculate the level sum heuristic for the planning graph
@@ -191,7 +192,7 @@ class PlanningGraph:
         --------
         Russell-Norvig 10.3.1 (3rd Edition)
         """
-        # TODO: implement this function
+        # DONE: implement this function
         self.fill()
         costs = []
         for goal in self.goal:
@@ -256,6 +257,15 @@ class PlanningGraph:
         WARNING: you should expect long runtimes using this heuristic on complex problems
         """
         # TODO: implement setlevel heuristic
+        self.fill()
+        costs = []
+        for goal in self.goal:
+            costs.append(self.h_goal_cost(goal))
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!", costs)
+
+        # for literal_layer in self.literal_layers:
+            # for goal in self.goal:
+                # if goal in literal_layer:
         raise NotImplementedError
 
     ##############################################################################
